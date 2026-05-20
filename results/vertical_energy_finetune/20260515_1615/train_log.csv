@@ -1,0 +1,2 @@
+epoch,updates,final_total_loss,load_checkpoint,saved_checkpoint
+619,19,3.153209686279297,results/heading_pitch_V_discrete_rnn_2026-05-13-21-17/checkpoints/checkpoint_epoch_600,results/vertical_energy_finetune/20260515_1615/checkpoint/checkpoint_epoch_619

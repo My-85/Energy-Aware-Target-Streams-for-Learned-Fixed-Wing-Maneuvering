@@ -1,0 +1,14 @@
+# Install a JAX/JAXLIB build matching your CPU/CUDA environment first when needed.
+jax
+jaxlib
+flax
+optax
+distrax
+orbax-checkpoint
+chex
+gymnax
+numpy
+matplotlib
+tensorboardX
+wandb
+tqdm

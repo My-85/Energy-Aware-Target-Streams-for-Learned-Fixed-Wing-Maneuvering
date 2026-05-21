@@ -7,36 +7,36 @@ This repository contains a compact code release for learned fixed-wing maneuveri
 - `envs/`: fixed-wing simulation environment, quaternion/vertical-energy task variants, rewards, terminations, simulator core, and utility code.
 - `experiments/hierarchical_trajectory_tracking/`: target-stream generation, trajectory libraries, planner utilities, geometry-aware loop evaluation, rendering helpers, and ACMI export helpers.
 - `configs/`: training and evaluation configuration files.
-- `vedio/`: demo GIFs, preserving the original demo filenames.
+- `vedio/`: demos, preserving the original demo filenames.
 - `results/`: summarized result tables, rollout summaries, metrics, and small checkpoints used by the code examples.
 - `eval_euler_vs_quat_v2.py`: Euler-angle vs quaternion-conditioned skill comparison.
 - `eval_vertical_energy_checkpoints.py`: baseline vs energy-aware vertical fine-tuning evaluation.
-- `eval_loop_quality_claude_aligned.py`: geometry-aware vertical-arc quality evaluation.
+- `eval_loop_quality_aligned.py`: geometry-aware vertical-arc quality evaluation.
 - `run_vertical_energy_balanced_v2.py` and `train_heading_pitch_V_discrete_rnn_quaternion_vertical_energy_finetune.py`: vertical-energy fine-tuning driver and training script.
 
-## Demo GIFs
+## Demos
 
-### 150°.gif
+### 150° vertical climb
 
 ![150°.gif](vedio/150%C2%B0.gif)
 
-### S_curve.gif
+### S_curve
 
 ![S_curve.gif](vedio/S_curve.gif)
 
-### chandelle_like.gif
+### chandelle_like
 
 ![chandelle_like.gif](vedio/chandelle_like.gif)
 
-### figure_eight.gif
+### figure_eight
 
 ![figure_eight.gif](vedio/figure_eight.gif)
 
-### mild_3D.gif
+### mild_3D
 
 ![mild_3D.gif](vedio/mild_3D.gif)
 
-### wingover.gif
+### wingover
 
 ![wingover.gif](vedio/wingover.gif)
 
@@ -82,7 +82,7 @@ RH-TSO improves CTE-P90 relative to the default `(L=1000, vt=250)` stream by:
 ├── vedio/
 ├── eval_euler_vs_quat_v2.py
 ├── eval_vertical_energy_checkpoints.py
-├── eval_loop_quality_claude_aligned.py
+├── eval_loop_quality_aligned.py
 ├── run_vertical_energy_balanced_v2.py
 └── train_heading_pitch_V_discrete_rnn_quaternion_vertical_energy_finetune.py
 ```
@@ -121,7 +121,7 @@ python eval_vertical_energy_checkpoints.py \
 Geometry-aware vertical-arc frontier:
 
 ```bash
-python eval_loop_quality_claude_aligned.py \
+python eval_loop_quality_aligned.py \
   --checkpoint results/vertical_energy_finetune/20260515_1615/checkpoint/checkpoint_epoch_619 \
   --suite official \
   --no-compare \

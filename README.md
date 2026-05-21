@@ -42,7 +42,7 @@ This repository contains a compact code release for learned fixed-wing maneuveri
 
 ### vertical loop
 
-![wingover.gif](vedio/wingover.gif)
+![vertical_loop.gif](vedio/vertical_loop.gif)
 
 ## Project Summary
 

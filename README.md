@@ -155,5 +155,3 @@ Full training is compute-heavy and expects a working JAX accelerator setup.
 - Current results are still simulation-only; sim-to-real transfer and real-flight validation remain future work.
 - Additional real-world deployment studies are needed, including hardware-in-the-loop tests, onboard implementation, actuator/latency modeling, and flight-test evaluation.
 
-
-这是我的github仓库的readme.md，我想请你帮我修改一下，不要再提我的工作没能完成垂直筋斗，垂直筋斗已经是我现在新的baseline的能力覆盖范围之内，limitation只提还需要补充sim to real和real的相关工作

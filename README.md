@@ -11,7 +11,7 @@ This repository contains a compact code release for learned fixed-wing maneuveri
 - `results/`: summarized result tables, rollout summaries, metrics, and small checkpoints used by the code examples.
 - `eval_euler_vs_quat_v2.py`: Euler-angle vs quaternion-conditioned skill comparison.
 - `eval_vertical_energy_checkpoints.py`: baseline vs energy-aware vertical fine-tuning evaluation.
-- `eval_loop_quality_aligned.py`: geometry-aware vertical-arc quality evaluation.
+- `eval_loop_quality_aligned.py`: geometry-aware vertical-arc and loop-like maneuver quality evaluation.
 - `run_vertical_energy_balanced_v2.py` and `train_heading_pitch_V_discrete_rnn_quaternion_vertical_energy_finetune.py`: vertical-energy fine-tuning driver and training script.
 
 ## Demos
@@ -55,7 +55,7 @@ The workflow is:
 3. Use geometry-aware metrics to reveal pseudo-tracking: low cross-track error can coexist with wrong nose direction, wrong velocity tangent, wing-plane mismatch, angle-of-attack problems, or poor energy state.
 4. Fine-tune the quaternion skill with energy-aware PPO terms for energy retention, low-speed safety, vertical progress, alpha/beta/G safety, smoothness, and replay of original tasks.
 5. Represent long-horizon maneuvers as executable target streams of local heading, pitch, roll, and airspeed commands.
-6. Select target-stream parameters with Receding-Horizon Target-Stream Optimization (RH-TSO), using short closed-loop rollouts through the frozen learned skill.
+6. Select low-dimensional target-stream parameters by closed-loop rollout through the frozen learned skill and fixed-wing dynamics. The experiments report controlled closed-loop stream sweeps and task-selected streams rather than a fully validated online replanning controller.
 
 ## Result Highlights
 
@@ -63,17 +63,27 @@ The workflow is:
 |---|---|---|
 | Euler vs quaternion target encoding | `results/euler_vs_quat_comparison/` | Quaternion improves complex curve maneuvers such as circles, S-curves, and figure-eights; Euler remains competitive on simple pitch/pull-up tasks. |
 | Energy-aware vertical fine-tune | `results/vertical_energy_finetune/20260515_1615/` | The epoch-619 vertical-energy skill improves energy/safety behavior and preserves much of the original horizontal/mild-3D capability. |
-| Loop-quality frontier | `results/official_loop_quality_epoch619/20260517_173622/` | Geometry-aware evaluation quantifies vertical-arc and vertical-loop execution quality, including cross-track error, attitude alignment, velocity tangent, wing-plane consistency, and energy/safety behavior. |
-| Target-stream parameter selection | `results/short_horizon_target_stream_selection/20260519_122354/` | Best lookahead/speed parameters are task dependent, motivating RH-TSO. |
+| Loop-quality frontier | `results/official_loop_quality_epoch619/20260517_173622/` | Geometry-aware evaluation quantifies vertical-arc and loop-like maneuver execution quality, including cross-track error, velocity tangent, wing-plane consistency, and energy/safety behavior. |
+| Closed-loop target-stream selection | `results/short_horizon_target_stream_selection/20260519_122354/` and `results/short_horizon_target_stream_selection/20260521_101936/` | Static waypoint targets are weak, fixed default streams are not uniformly optimal, and task-selected streams improve CTE-P90 over the default stream. |
 
-RH-TSO improves CTE-P90 relative to the default `(L=1000, vt=250)` stream by:
+### Closed-loop target-stream selection
 
-| Task | Default CTE-P90 | Best CTE-P90 | Improvement | Best stream |
-|---|---:|---:|---:|---|
-| S-curve | 1503 m | 918 m | 39% | `(L=600, vt=220)` |
-| Figure-eight | 1039 m | 1017 m | 2% | `(L=600, vt=220)` |
-| Helix / mild-3D | 691 m | 524 m | 24% | `(L=600, vt=220)` |
-| 90° vertical pull-up | 96 m | 51 m | 47% | `(L=1500, vt=280)` |
+The repository evaluates three target-generation choices under a unified protocol:
+
+- **Static waypoint**: directly aim at the next waypoint with a fixed target speed.
+- **Fixed default stream**: use a moving-lookahead target stream with default parameters `(L=1000, vt=250)`.
+- **Task-selected stream**: choose the best `(L, vt)` from a closed-loop stream sweep through the frozen policy and fixed-wing dynamics.
+
+Task-selected streams improve CTE-P90 relative to the default `(L=1000, vt=250)` stream by:
+
+| Task | Static waypoint CTE-P90 | Default CTE-P90 | Selected CTE-P90 | Improvement vs default | Selected stream |
+|---|---:|---:|---:|---:|---|
+| S-curve | 1831 m | 1503 m | 918 m | 39% | `(L=600, vt=220)` |
+| Figure-eight | 1716 m | 1039 m | 1017 m | 2% | `(L=600, vt=220)` |
+| Helix / mild-3D | 16458 m | 691 m | 524 m | 24% | `(L=600, vt=220)` |
+| 90° vertical pull-up | 1294 m | 96 m | 51 m | 47% | `(L=1500, vt=280)` |
+
+These results support two conclusions: first, target streams are not a trivial wrapper around waypoint tracking; second, no single fixed lookahead/speed pair is uniformly optimal across maneuver types.
 
 ## Repository Layout
 
@@ -116,29 +126,29 @@ Energy-aware vertical skill evaluation:
 
 ```bash
 python eval_vertical_energy_checkpoints.py \
-  --baseline results/heading_pitch_V_discrete_rnn_2026-05-13-21-17/checkpoints/checkpoint_epoch_600 \
-  --new results/vertical_energy_finetune/20260515_1615/checkpoint/checkpoint_epoch_619 \
-  --seeds 10 \
-  --out-dir results/vertical_energy_finetune_rerun
+  --baseline results/heading_pitch_V_discrete_rnn_2026-05-13-21-17/checkpoints/checkpoint_epoch_600 \
+  --new results/vertical_energy_finetune/20260515_1615/checkpoint/checkpoint_epoch_619 \
+  --seeds 10 \
+  --out-dir results/vertical_energy_finetune_rerun
 ```
 
-Geometry-aware vertical-arc / vertical-loop frontier:
+Geometry-aware vertical-arc / loop-like maneuver frontier:
 
 ```bash
 python eval_loop_quality_aligned.py \
-  --checkpoint results/vertical_energy_finetune/20260515_1615/checkpoint/checkpoint_epoch_619 \
-  --suite official \
-  --no-compare \
-  --out-dir results/official_loop_quality_epoch619_rerun
+  --checkpoint results/vertical_energy_finetune/20260515_1615/checkpoint/checkpoint_epoch_619 \
+  --suite official \
+  --no-compare \
+  --out-dir results/official_loop_quality_epoch619_rerun
 ```
 
 Dry-run the balanced vertical-energy training driver:
 
 ```bash
 python run_vertical_energy_balanced_v2.py \
-  --config configs/vertical_energy_balanced_finetune_v2_config.json \
-  --cycles 1 \
-  --dry-run
+  --config configs/vertical_energy_balanced_finetune_v2_config.json \
+  --cycles 1 \
+  --dry-run
 ```
 
 A small smoke training run can be launched with reduced environment count and timesteps:
@@ -152,6 +162,7 @@ Full training is compute-heavy and expects a working JAX accelerator setup.
 
 ## Limitations
 
-- Current results are still simulation-only; sim-to-real transfer and real-flight validation remain future work.
+- Current results are simulation-only; sim-to-real transfer and real-flight validation remain future work.
+- The main target-stream experiments report controlled closed-loop stream sweeps and task-selected streams, not a fully validated online replanning controller.
+- The deterministic stream sweep is grid-optimal only within the enumerated candidate set; richer stream spaces may require sampling-based optimizers or value-aware online selection.
 - Additional real-world deployment studies are needed, including hardware-in-the-loop tests, onboard implementation, actuator/latency modeling, and flight-test evaluation.
-

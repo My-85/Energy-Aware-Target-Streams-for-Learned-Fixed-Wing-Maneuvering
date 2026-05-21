@@ -40,6 +40,10 @@ This repository contains a compact code release for learned fixed-wing maneuveri
 
 ![wingover.gif](vedio/wingover.gif)
 
+### vertical loop
+
+![wingover.gif](vedio/wingover.gif)
+
 ## Project Summary
 
 The project studies fixed-wing maneuvering as a learning-control interface problem. A fixed-wing aircraft cannot treat a maneuver as waypoint tracking only: attitude, velocity direction, lift direction, energy state, actuator authority, and safety margins are coupled.

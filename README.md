@@ -63,7 +63,7 @@ The workflow is:
 |---|---|---|
 | Euler vs quaternion target encoding | `results/euler_vs_quat_comparison/` | Quaternion improves complex curve maneuvers such as circles, S-curves, and figure-eights; Euler remains competitive on simple pitch/pull-up tasks. |
 | Energy-aware vertical fine-tune | `results/vertical_energy_finetune/20260515_1615/` | The epoch-619 vertical-energy skill improves energy/safety behavior and preserves much of the original horizontal/mild-3D capability. |
-| Loop-quality frontier | `results/official_loop_quality_epoch619/20260517_173622/` | 60° to 150° vertical arcs receive B-grade geometry-aware quality; 180° half-loop remains a failure case. |
+| Loop-quality frontier | `results/official_loop_quality_epoch619/20260517_173622/` | Geometry-aware evaluation quantifies vertical-arc and vertical-loop execution quality, including cross-track error, attitude alignment, velocity tangent, wing-plane consistency, and energy/safety behavior. |
 | Target-stream parameter selection | `results/short_horizon_target_stream_selection/20260519_122354/` | Best lookahead/speed parameters are task dependent, motivating RH-TSO. |
 
 RH-TSO improves CTE-P90 relative to the default `(L=1000, vt=250)` stream by:
@@ -116,29 +116,29 @@ Energy-aware vertical skill evaluation:
 
 ```bash
 python eval_vertical_energy_checkpoints.py \
-  --baseline results/heading_pitch_V_discrete_rnn_2026-05-13-21-17/checkpoints/checkpoint_epoch_600 \
-  --new results/vertical_energy_finetune/20260515_1615/checkpoint/checkpoint_epoch_619 \
-  --seeds 10 \
-  --out-dir results/vertical_energy_finetune_rerun
+  --baseline results/heading_pitch_V_discrete_rnn_2026-05-13-21-17/checkpoints/checkpoint_epoch_600 \
+  --new results/vertical_energy_finetune/20260515_1615/checkpoint/checkpoint_epoch_619 \
+  --seeds 10 \
+  --out-dir results/vertical_energy_finetune_rerun
 ```
 
-Geometry-aware vertical-arc frontier:
+Geometry-aware vertical-arc / vertical-loop frontier:
 
 ```bash
 python eval_loop_quality_aligned.py \
-  --checkpoint results/vertical_energy_finetune/20260515_1615/checkpoint/checkpoint_epoch_619 \
-  --suite official \
-  --no-compare \
-  --out-dir results/official_loop_quality_epoch619_rerun
+  --checkpoint results/vertical_energy_finetune/20260515_1615/checkpoint/checkpoint_epoch_619 \
+  --suite official \
+  --no-compare \
+  --out-dir results/official_loop_quality_epoch619_rerun
 ```
 
 Dry-run the balanced vertical-energy training driver:
 
 ```bash
 python run_vertical_energy_balanced_v2.py \
-  --config configs/vertical_energy_balanced_finetune_v2_config.json \
-  --cycles 1 \
-  --dry-run
+  --config configs/vertical_energy_balanced_finetune_v2_config.json \
+  --cycles 1 \
+  --dry-run
 ```
 
 A small smoke training run can be launched with reduced environment count and timesteps:
@@ -152,7 +152,8 @@ Full training is compute-heavy and expects a working JAX accelerator setup.
 
 ## Limitations
 
-- All results are simulation-only.
-- The simulator is experimental infrastructure, not the main contribution.
-- The method does not solve full aerobatics. In particular, the 180° half-loop remains a failure case under the geometry-aware evaluator.
-- The checked-in checkpoints are small research artifacts for reproducing the reported analyses, not production flight controllers.
+- Current results are still simulation-only; sim-to-real transfer and real-flight validation remain future work.
+- Additional real-world deployment studies are needed, including hardware-in-the-loop tests, onboard implementation, actuator/latency modeling, and flight-test evaluation.
+
+
+这是我的github仓库的readme.md，我想请你帮我修改一下，不要再提我的工作没能完成垂直筋斗，垂直筋斗已经是我现在新的baseline的能力覆盖范围之内，limitation只提还需要补充sim to real和real的相关工作
